@@ -327,12 +327,13 @@ new_lwp:
 	movl	%esp, %ebp
 	subl	$56, %esp
 	movl	lwp_procs, %eax
-	cmpl	$30, %eax
+	cmpl	$29, %eax
 	jle	.L41
 	movl	$-1, %eax
 	jmp	.L42
 .L41:
 	movl	16(%ebp), %eax
+	sall	$2, %eax
 	movl	%eax, (%esp)
 	call	malloc
 	movl	%eax, -16(%ebp)
@@ -343,7 +344,11 @@ new_lwp:
 	movl	12(%ebp), %edx
 	movl	-24(%ebp), %eax
 	movl	%edx, (%eax)
-	subl	$8, -24(%ebp)
+	subl	$4, -24(%ebp)
+	movl	12(%ebp), %edx
+	movl	-24(%ebp), %eax
+	movl	%edx, (%eax)
+	subl	$4, -24(%ebp)
 	movl	8(%ebp), %edx
 	movl	-24(%ebp), %eax
 	movl	%edx, (%eax)
@@ -369,46 +374,33 @@ new_lwp:
 	movl	-20(%ebp), %edx
 	movl	-24(%ebp), %eax
 	movl	%edx, (%eax)
-	movl	$16, (%esp)
-	call	malloc
-	movl	%eax, -28(%ebp)
 	movl	lwp_procs, %eax
 	addl	$1, %eax
 	movl	%eax, lwp_procs
 	movl	lwp_procs, %eax
-	movl	%eax, %edx
-	movl	-28(%ebp), %eax
-	movl	%edx, (%eax)
-	movl	-28(%ebp), %eax
-	movl	-16(%ebp), %edx
-	movl	%edx, 4(%eax)
-	movl	-28(%ebp), %eax
-	movl	16(%ebp), %edx
-	movl	%edx, 8(%eax)
-	movl	-28(%ebp), %eax
-	movl	-24(%ebp), %edx
-	movl	%edx, 12(%eax)
-	movl	-28(%ebp), %eax
-	movl	(%eax), %eax
+	movl	%eax, -40(%ebp)
+	movl	-16(%ebp), %eax
+	movl	%eax, -36(%ebp)
+	movl	16(%ebp), %eax
+	movl	%eax, -32(%ebp)
+	movl	-24(%ebp), %eax
+	movl	%eax, -28(%ebp)
+	movl	-40(%ebp), %eax
 	subl	$1, %eax
-	movl	%eax, %edx
-	sall	$4, %edx
-	movl	-28(%ebp), %eax
-	movl	(%eax), %ecx
-	movl	%ecx, lwp_ptable(%edx)
-	movl	4(%eax), %ecx
-	movl	%ecx, lwp_ptable+4(%edx)
-	movl	8(%eax), %ecx
-	movl	%ecx, lwp_ptable+8(%edx)
-	movl	12(%eax), %eax
-	movl	%eax, lwp_ptable+12(%edx)
-	movl	-28(%ebp), %eax
-	movl	(%eax), %eax
+	sall	$4, %eax
+	movl	-40(%ebp), %edx
+	movl	%edx, lwp_ptable(%eax)
+	movl	-36(%ebp), %edx
+	movl	%edx, lwp_ptable+4(%eax)
+	movl	-32(%ebp), %edx
+	movl	%edx, lwp_ptable+8(%eax)
+	movl	-28(%ebp), %edx
+	movl	%edx, lwp_ptable+12(%eax)
+	movl	-40(%ebp), %eax
 	subl	$1, %eax
 	movl	%eax, (%esp)
 	call	qinsert
-	movl	-28(%ebp), %eax
-	movl	(%eax), %eax
+	movl	-40(%ebp), %eax
 .L42:
 	leave
 	ret
@@ -421,9 +413,6 @@ lwp_exit:
 	subl	$24, %esp
 	movl	currentLWP, %eax
 	movl	4(%eax), %eax
-	movl	%eax, (%esp)
-	call	free
-	movl	currentLWP, %eax
 	movl	%eax, (%esp)
 	call	free
 	movl	lwp_procs, %eax
@@ -455,31 +444,31 @@ lwp_exit:
 	movl	currentLWP, %eax
 	movl	12(%eax), %eax
 #APP
-# 255 "lwp.c" 1
+# 258 "lwp.c" 1
 	movl  %eax,%esp
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %ebp
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %edi
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %esi
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %edx
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %ecx
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %ebx
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	popl  %eax
 # 0 "" 2
-# 258 "lwp.c" 1
+# 261 "lwp.c" 1
 	movl  %ebp,%esp
 # 0 "" 2
 #NO_APP
@@ -512,31 +501,31 @@ lwp_yield:
 	movl	%esp, %ebp
 	subl	$8, %esp
 #APP
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %eax
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %ebx
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %ecx
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %edx
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %esi
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %edi
 # 0 "" 2
-# 283 "lwp.c" 1
+# 286 "lwp.c" 1
 	pushl %ebp
 # 0 "" 2
 #NO_APP
 	movl	currentLWP, %eax
 #APP
-# 286 "lwp.c" 1
+# 289 "lwp.c" 1
 	movl  %esp,%edx
 # 0 "" 2
 #NO_APP
@@ -545,31 +534,31 @@ lwp_yield:
 	movl	currentLWP, %eax
 	movl	12(%eax), %eax
 #APP
-# 292 "lwp.c" 1
+# 295 "lwp.c" 1
 	movl  %eax,%esp
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %ebp
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %edi
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %esi
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %edx
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %ecx
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %ebx
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	popl  %eax
 # 0 "" 2
-# 295 "lwp.c" 1
+# 298 "lwp.c" 1
 	movl  %ebp,%esp
 # 0 "" 2
 #NO_APP
@@ -587,28 +576,28 @@ lwp_start:
 	je	.L62
 .L59:
 #APP
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %eax
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %ebx
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %ecx
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %edx
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %esi
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %edi
 # 0 "" 2
-# 316 "lwp.c" 1
+# 319 "lwp.c" 1
 	pushl %ebp
 # 0 "" 2
-# 320 "lwp.c" 1
+# 323 "lwp.c" 1
 	movl  %esp,%eax
 # 0 "" 2
 #NO_APP
@@ -617,31 +606,31 @@ lwp_start:
 	movl	currentLWP, %eax
 	movl	12(%eax), %eax
 #APP
-# 326 "lwp.c" 1
+# 329 "lwp.c" 1
 	movl  %eax,%esp
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %ebp
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %edi
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %esi
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %edx
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %ecx
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %ebx
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	popl  %eax
 # 0 "" 2
-# 329 "lwp.c" 1
+# 332 "lwp.c" 1
 	movl  %ebp,%esp
 # 0 "" 2
 #NO_APP
@@ -659,31 +648,31 @@ lwp_stop:
 	movl	%esp, %ebp
 	movl	driverStackPointer, %eax
 #APP
-# 342 "lwp.c" 1
+# 345 "lwp.c" 1
 	movl  %eax,%esp
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %ebp
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %edi
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %esi
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %edx
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %ecx
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %ebx
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	popl  %eax
 # 0 "" 2
-# 345 "lwp.c" 1
+# 348 "lwp.c" 1
 	movl  %ebp,%esp
 # 0 "" 2
 #NO_APP

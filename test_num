@@ -1,0 +1,8 @@
+make clean
+make examples
+./numbersmain > out
+./numbersmain-ex > correct
+diff -bw out correct
+./numbersmain -z > out
+./numbersmain-ex -z > correct
+diff -bw out correct

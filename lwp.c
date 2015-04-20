@@ -11,7 +11,7 @@
 #include <string.h>
 #include "lwp.h"
 
-#define LWP_MAX_STACK_SIZE	50
+#define LWP_MAX_STACK_SIZE	128
 #define REGISTER_SIZE 27
 
 typedef struct queueNode{
@@ -31,13 +31,13 @@ schedfun *schedFun;
 //	Adds a node to the tail, initializing queue if need be
 void qinsert(int index) { 
 	if(qhead == NULL) {
-		qhead = malloc(sizeof(node));
+		qhead = (node *) malloc(sizeof(node));
 		qhead->index = index;
 		qhead->next = NULL;
 		qtail = qhead;
 	}
 	else {
-		qtail->next = malloc(sizeof(node));
+		qtail->next = (node *) malloc(sizeof(node));
 		qtail->next->index = index;
 		qtail->next->next = NULL;
 		qtail = qtail->next;
@@ -131,8 +131,6 @@ void setNextScheduled() {
 		next = roundRobin();
 	} else {
 		next = (*schedFun)();
-		//qremove(next);
-		//qinsert(next);
 	}
 	
 	currentLWP = &lwp_ptable[next];
@@ -162,14 +160,14 @@ void setNextScheduled() {
  *	6. Create lwp_context struct and insert it into driver's process table 
  */
 int  new_lwp(lwpfun func, void * args, size_t stacksize) {
-	lwp_context *processTableEntry;
+	lwp_context processTableEntry;
 	ptr_int_t *lwpSP, *newBP;
 	ptr_int_t *stack;
 	
-	if(lwp_procs > LWP_PROC_LIMIT) return -1;
+	if(lwp_procs >= LWP_PROC_LIMIT) return -1;
 		
 	//	Allocate stack
-	stack = malloc(stacksize);
+	stack = malloc(sizeof(ptr_int_t) * stacksize);
 
 	// pointer to LWP's stack	
 	lwpSP = stack + stacksize;
@@ -178,7 +176,13 @@ int  new_lwp(lwpfun func, void * args, size_t stacksize) {
 	*lwpSP = (ptr_int_t) args;
 	
 	//	Adjust LWP SP for argument
-	lwpSP-= 2;
+	lwpSP--;
+	
+	//	Copy argument again?
+	*lwpSP = (ptr_int_t) args;
+	
+	//	Adjust LWP SP for arg
+	lwpSP--;
 				
 	//	Copy return address
 	*lwpSP = (ptr_int_t) func;
@@ -208,19 +212,18 @@ int  new_lwp(lwpfun func, void * args, size_t stacksize) {
 	*lwpSP = (ptr_int_t) newBP;
 			
 	//	Create LWP's process table entry
-	processTableEntry = malloc(sizeof(lwp_context));
-	processTableEntry->pid = ++lwp_procs;
-	processTableEntry->stack = stack;
-	processTableEntry->stacksize = stacksize;
-	processTableEntry->sp = lwpSP;
+	processTableEntry.pid = ++lwp_procs;
+	processTableEntry.stack = stack;
+	processTableEntry.stacksize = stacksize;
+	processTableEntry.sp = lwpSP;
 	
 	//	Insert new LWP into process table
-	lwp_ptable[processTableEntry->pid - 1] = *processTableEntry;
+	lwp_ptable[processTableEntry.pid - 1] = processTableEntry;
 	
 	//	Insert into queue
-	qinsert(processTableEntry->pid - 1);
+	qinsert(processTableEntry.pid - 1);
 				
-	return processTableEntry->pid;	
+	return processTableEntry.pid;	
 }
 
 /*	Terminates the current LWP, frees its resources, and moves all the
@@ -234,7 +237,6 @@ int  new_lwp(lwpfun func, void * args, size_t stacksize) {
  */
 void lwp_exit() {
 	free(currentLWP->stack);
-	free(currentLWP);
 	
 	qremove(--lwp_procs);
 		
