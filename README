@@ -1,0 +1,14 @@
+# Eli Pleaner
+# OS-lwp-threading-library
+Lightweight threading library written in C for CSC 453: Operating Systems
+Written for a 32 bit OS.
+
+“How is this LWP library different from a real thread management library? Name two ways in which this LWP library API could be improved.”
+This LWP library does not have synchronization primitives that guarantee mutual exlusiveness between threads. Synchronization primitives such as TestSetAndLock are common in a real thread management library. This LWP library API could be improved by adding a synchronization primitive before each thread executes, to guarantee mutual exclusiveness while each thread is running its critical section.
+	This LWP library also does not use atomic semaphores that guarantee other attributes of a synchronization solution. Without semaphores, processes could become deadlocked waiting for other processes to finish execution. Our library overcomes this with non-preemtive scheduling, which guarantees no threads to become preemted during their critical section. Our LWP library API could be improved with more efficient ways of guaranteeing progress and bounded wait, potentially through semaphores such as wait and signal. 
+
+To run:
+'make clean'
+'make examples'
+
+Execute numbersmain, snakemain, or hungrymain.

@@ -47,9 +47,9 @@ void qinsert(int index) {
 //	Removes head from queue
 int qdelete() {
 	int removed = qhead->index;
-	//node *toFree = qhead;
+	node *toFree = qhead;
 	qhead = qhead->next;
-	//free(toFree);
+	free(toFree);
 	return removed;
 }
 
@@ -175,11 +175,11 @@ int  new_lwp(lwpfun func, void * args, size_t stacksize) {
 	//	Copy argument
 	*lwpSP = (ptr_int_t) args;
 	
-	//	Adjust LWP SP for lwp_exit
+	//	Adjust LWP SP for argument
 	lwpSP--;
 	
-	//	Copy lwp_exit as return address for thread func
-	*lwpSP = (ptr_int_t) lwp_exit;
+	//	Copy argument again?
+	*lwpSP = (ptr_int_t) args;
 	
 	//	Adjust LWP SP for arg
 	lwpSP--;

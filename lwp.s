@@ -67,19 +67,14 @@ qinsert:
 qdelete:
 	pushl	%ebp
 	movl	%esp, %ebp
-	subl	$40, %esp
+	subl	$16, %esp
 	movl	qhead, %eax
 	movl	(%eax), %eax
-	movl	%eax, -16(%ebp)
-	movl	qhead, %eax
-	movl	%eax, -12(%ebp)
+	movl	%eax, -4(%ebp)
 	movl	qhead, %eax
 	movl	4(%eax), %eax
 	movl	%eax, qhead
-	movl	-12(%ebp), %eax
-	movl	%eax, (%esp)
-	call	free
-	movl	-16(%ebp), %eax
+	movl	-4(%ebp), %eax
 	leave
 	ret
 	.size	qdelete, .-qdelete
@@ -345,7 +340,7 @@ new_lwp:
 	movl	-24(%ebp), %eax
 	movl	%edx, (%eax)
 	subl	$4, -24(%ebp)
-	movl	12(%ebp), %edx
+	movl	$lwp_exit, %edx
 	movl	-24(%ebp), %eax
 	movl	%edx, (%eax)
 	subl	$4, -24(%ebp)
